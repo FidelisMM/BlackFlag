@@ -5,15 +5,72 @@
     box-sizing: border-box;
 }
 
-/* Estilos básicos para html e body */
-html, body {
-    height: 100%;
-    overflow: hidden; /* Impede rolagem no nível mais alto */
-    font-family: 'Arial', sans-serif;
-    background-color: #121212; /* Cor de fundo escura para contraste */
+.card-footer button {
+    margin-right: 0.2vw;
 }
 
-/* Contêiner para as informações do clã com espaçamento horizontal e centralização */
+.card-header {
+    display: flex;
+}
+
+.card-header button {
+    margin-right: 0.2vw;
+}
+
+.card-header-sm {
+    flex: 1.5;
+    font-weight: 100;
+    font-size: 60%;
+    line-height: 3.5vh;
+}
+
+.card-header-med {
+    flex: 1.7;
+}
+
+.card-header-lg {
+    flex: 8.5;
+}
+
+footer {
+    width: 100vw;
+    height: 2vh;
+    background-color: #111;
+    color: #e8e8e8;
+    text-align: center;
+    a {
+        text-decoration: none;
+        color: #ff0000;
+    }
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    background-color: #121212;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+
+.main-container {
+    display: flex;
+    background-color: #121212;
+    width: 100vw;
+    height: 98vh;
+    color: #fff;
+    font-weight: 600;
+}
+
+.main-content {
+    width: 100vw;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
 .metadata-clan {
     display: flex;
     align-items: center; /* Alinha os itens verticalmente no centro */
@@ -31,64 +88,37 @@ html, body {
     z-index: 1000; /* Garante que o elemento fique sobre outros conteúdos */
 }
 
-/* Ajusta o contêiner principal para permitir rolagem */
-.main-container {
-    margin: 0 20px; /* Margem lateral para todo o conteúdo dentro do contêiner principal */
-    overflow-y: auto; /* Permite rolagem vertical */
-    height: calc(100vh - 40px); /* Altura total da viewport menos as margens verticais */
-}
-
 .main-content-nav {
     position: sticky;
     top: 0;
-    background-color: #440000;
     z-index: 3;
+    margin-left: 0.50%;
+    margin-right: 0.50%;
     color: #e0e0e0;
+    background-color: #121212;
 }
 
-/* Cabeçalho com informações dispostas em múltiplas colunas */
-.header {
+.main-landing {
+    position: relative;
     display: flex;
-    justify-content: space-around; /* Distribui espaço uniformemente entre colunas */
-    width: 100%;
-    background-color: #333;
-    padding: 10px 0; /* Espaçamento vertical para respirar */
+    flex-direction: column;
 }
 
-/* Definição para cada coluna no cabeçalho */
-.header-column {
+.member-row {
+    width: 99%;
+    gap: 0.25vw;
     display: flex;
-    flex-direction: column; /* Organiza o conteúdo verticalmente dentro de cada coluna */
-    align-items: center; /* Centraliza horizontalmente o conteúdo da coluna */
-    flex-grow: 1; /* Distribui espaço igualmente entre as colunas */
-    color: #ffffff; /* Texto em branco para contraste */
-}
-
-/* Conteúdo principal ocupando toda a largura horizontal */
-.content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column; /* Empilha os conteúdos verticalmente */
-    width: 100%;
-    overflow-x: hidden; /* Esconde rolagem horizontal */
-    overflow-y: auto; /* Permite rolagem vertical se necessário */
-}
-
-/* Estilos para os cartões de membros dispostos em duas colunas */
-.member-canvas {
-    display: flex;
-    flex-wrap: wrap; /* Permite que os cartões envolvam conforme o espaço */
-    justify-content: space-around; /* Distribui espaço uniformemente entre cartões */
+    margin-left: 0.50%;
+    margin-right: 0.50%;
 }
 
 .member-card {
-    flex: 1 1 48%; /* Ocupa 48% da linha, permitindo 2 cartões por linha com espaçamento */
-    margin: 10px 1%; /* Margem para espaçamento entre os cartões */
-    padding: 20px; /* Espaçamento interno para conteúdo */
-    background-color: #444; /* Cor de fundo dos cartões */
-    color: #fff; /* Cor do texto */
-    border-radius: 10px; /* Bordas arredondadas */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Sombra para efeito visual */
+    width: 25vw;
+    margin-bottom: 0.5vw;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.25vw;
+    overflow: hidden;
 }
 
 .member-tag-link {
@@ -98,19 +128,86 @@ html, body {
     font-size: 50%;
 }
 
-@media (max-width: 768px) {
-    .member-card {
-        flex-basis: 100%; /* Em telas pequenas, cada cartão ocupa 100% da largura */
+.metadata-activity-container {
+    overflow-y: hidden;
+    overflow-x: scroll;
+    width: 100vw;
+}
+
+::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+}
+
+.metadata-activity-map {
+    width: 100vw;
+}
+
+@media (min-width: 801px) {
+    .metadata-clan {
+        top: 0;
     }
 }
 
-/* Para ocultar a barra de rolagem em navegadores WebKit (Chrome, Safari, etc.) */
-::-webkit-scrollbar {
-    display: none; /* Remove completamente a barra de rolagem */
-}
+@media (max-width: 800px) {
+    .animation-canvas {
+        width: 100vw;
+        height: 49vh;
+    }
 
-/* Para outros navegadores que não sejam WebKit */
-body {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
+    .card-header-sm {
+        flex: 2;
+    }
+
+    .card-header-med {
+        flex: 3.25;
+    }
+
+    .card-header i {
+        font-size: 3.75vw;
+    }
+
+    .main-container {
+        flex-direction: column;
+        font-size: 90%;
+    }
+
+    .main-content {
+        width: 100vw;
+    }
+
+    .main-landing {
+        width: 100%;
+        height: 20vh;
+        position: relative;
+    }
+
+    .metadata-activity-container {
+        width: 100vw;
+    }
+
+    .metadata-activity-map {
+        width: 200vw;
+    }
+
+    .metadata-clan {
+        position: absolute;
+        bottom:0;
+        flex-direction: column;
+        width: 100%;
+        gap: 1vh;
+        div {
+            width: 100%;
+        }
+    }
+
+    .member-row {
+        flex-direction: column;
+    }
+
+    .member-card {
+        width: 96vw;
+        margin: auto;
+        margin-bottom: 2vh;
+        font-size: 5vw;
+    }
+  }

@@ -187,7 +187,7 @@ function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanS
     const localTime = new Date(updateTime).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
 
     //Update metadata-data-time
-    updateItem("metadata-data-time", ["fa-solid", "fa-pen-to-square"], "#ff0000", ` Atualizado desde: ${localTime}`);
+    updateItem("metadata-data-time", ["fa-solid", "fa-pen-to-square"], "#e0e0e0", ` Atualizado desde: ${localTime}`);
 
     //Update metadata-clan-tag
     updateItem("metadata-clan-tag", ["fa-solid", "fa-hashtag"], "#ff0000", ` ${clanTag}`);
@@ -496,7 +496,7 @@ async function populateMemberList(data, history) {
     for (const k of order) {
         const v = members[k];
         if (cardInRow === 0) {
-            cardInRow = 2; //how many cards per row
+            cardInRow = 4; //how many cards per row
             row = document.createElement("div");
             helper.appendClassList(row, ["member-row"]);
             memberCanvas.appendChild(row);
