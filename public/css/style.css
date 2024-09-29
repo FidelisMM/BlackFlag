@@ -75,7 +75,7 @@ html::-webkit-scrollbar {
     display: flex;
     align-items: center; /* Alinha os itens verticalmente no centro */
     justify-content: space-around; /* Distribui espaço uniformemente entre itens */
-    margin: 10px 20px; /* Margem externa para distanciamento das bordas */
+    margin: 20px 40px; /* Margem externa para distanciamento das bordas */
     font-size: 16px; /* Ajuste o tamanho da fonte conforme necessário */
     color: #e0e0e0; /* Cor de texto mais clara para melhor legibilidade */
     background-color: #333; /* Fundo escuro para contraste */
@@ -86,16 +86,28 @@ html::-webkit-scrollbar {
     position: sticky; /* Fixa o elemento no topo ao rolar a página */
     top: 0; /* Mantém o elemento fixo no topo da página */
     z-index: 1000; /* Garante que o elemento fique sobre outros conteúdos */
+
 }
 
 .main-content-nav {
     position: sticky;
     top: 0;
     z-index: 3;
-    margin-left: 0.50%;
-    margin-right: 0.50%;
     color: #e0e0e0;
     background-color: #121212;
+}
+
+.data-ordering {
+    margin-left: 1%;
+    margin-right: 1%;
+    width: 98%;
+}
+
+.metadata-data-time {
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 0.25%;
+    width: 98%;
 }
 
 .main-landing {
@@ -132,6 +144,7 @@ html::-webkit-scrollbar {
     overflow-y: hidden;
     overflow-x: scroll;
     width: 100vw;
+    margin-bottom: 1%;
 }
 
 ::-webkit-scrollbar { 
