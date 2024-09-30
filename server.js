@@ -397,8 +397,8 @@ async function parseCurrentData() {
   });
   var torder = Object.keys(clanMembers);
   var norder = Object.keys(clanMembers).sort((m1, m2) => {
-    var a = clanMembers[m1]["name"];
-    var b = clanMembers[m2]["name"];
+    var a = clanMembers[m1]["name"].toLowerCase();
+    var b = clanMembers[m2]["name"].toLowerCase();
     return a != b ? (a < b ? -1 : 1) : 0;
   });
   var tgorder = Object.keys(clanMembers).sort((m1, m2) => {
