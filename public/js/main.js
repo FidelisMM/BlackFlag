@@ -5,14 +5,14 @@ class DocumentHelper {
         }
     }
 
-    generateIcon(classes, color="") {
+    generateIcon(classes, color = "") {
         var icon = document.createElement("i");
         this.appendClassList(icon, classes);
         if (color) {
             icon.style = `color : ${color}`;
         }
         return icon;
-    } 
+    }
 
 }
 
@@ -32,18 +32,18 @@ async function updateActivityMap(activity) {
             return hr + min;
         }
         var zArr = Array(96).fill().map((_, index) => 0);
-        for (i=0; i<day.length; i+=1) {
+        for (i = 0; i < day.length; i += 1) {
             const t = parseTime(day[i]);
             zArr[Math.floor(t / 0.25)] += 1;
         }
         return zArr;
     }
     var labels = [];
-    for (var i=0; i<24; i+=1) {
-        labels.push(i+":00");
-        labels.push(i+":15");
-        labels.push(i+":30");
-        labels.push(i+":45");
+    for (var i = 0; i < 24; i += 1) {
+        labels.push(i + ":00");
+        labels.push(i + ":15");
+        labels.push(i + ":30");
+        labels.push(i + ":45");
     }
     document.getElementById("metadata-activity-map").innerHTML = "";
     var options = {
@@ -132,7 +132,7 @@ async function updateActivityMap(activity) {
         yaxis: {
             labels: {
                 style: {
-                    colors:  '#ffffff'
+                    colors: '#ffffff'
                 },
             }
         },
@@ -140,7 +140,7 @@ async function updateActivityMap(activity) {
             categories: labels,
             labels: {
                 style: {
-                    colors:  '#ffffff'
+                    colors: '#ffffff'
                 },
             },
             tickAmount: 24,
@@ -151,7 +151,7 @@ async function updateActivityMap(activity) {
             type: 'heatmap',
             toolbar: {
                 show: false,
-            }, 
+            },
             animations: {
                 enabled: true,
             },
@@ -200,7 +200,7 @@ function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanS
 
     //Update metadata-clan-score
     updateItem("metadata-clan-score", ["fa-solid", "fa-trophy"], "#ffe75c", ` ${clanScore}`);
-    
+
     //Update metadata-clan-trophies
     updateItem("metadata-clan-trophies", ["fa-solid", "fa-trophy"], "#ad00f1", ` ${clanTrophies}`);
 
@@ -210,6 +210,7 @@ function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanS
 
 async function initOrderButton(orderingKeys) {
     var select = document.getElementById("data-ordering");
+    
     select.innerHTML = "";
     for (const key of orderingKeys) {
         var option = document.createElement("option");
@@ -228,77 +229,93 @@ async function initOrderButton(orderingKeys) {
 
 
 async function populateMemberList(data, history) {
-    //helper functions for orginization
-    function generateBadge(iconClasses, iconColor, buttonVariant, toolTipText, toolTipDirection="top") {
+    console.log('populateMemberList foi chamada');
+
+    var memberCanvas = document.getElementById("member-canvas");
+    memberCanvas.innerHTML = "";  // Limpa o conteúdo anterior
+
+    console.log('Populando membros...');
+
+    // Verifique se `orderingSelector` e `data["ordering"]` são válidos
+    if (!data["ordering"] || !data["ordering"][orderingSelector]) {
+        console.error(`Ordenação não encontrada para: ${orderingSelector}`);
+        return;
+    }
+
+    // Função auxiliar para gerar badges
+    function generateBadge(iconClasses, iconColor, buttonVariant, toolTipText, toolTipDirection = "top") {
         var badge = document.createElement("button");
         var icon = helper.generateIcon(iconClasses, iconColor);
-    
+
         badge.classList.add("btn");
         badge.classList.add("btn-sm");
         badge.classList.add(buttonVariant);
-    
+
         badge.setAttribute("data-bs-toggle", "tooltip");
         badge.setAttribute("data-bs-placement", toolTipDirection);
         badge.setAttribute("data-bs-title", toolTipText);
-    
+
         badge.appendChild(icon);
         popoverList.push(new bootstrap.Tooltip(badge));
         return badge;
     }
 
-    function getBadge(badge){
-        switch(badge) {
+    // Função que retorna as badges com base no membro
+    function getBadge(badge) {
+        switch (badge) {
             case "leader":
-                return generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)", "right");
+                return generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Capitão (Líder)", "right");
             case "coleader":
-                return generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)", "right");
+                return generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Comandante (Co-Líder)", "right");
             case "elder":
-                return generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Elder Dragon (Elder)", "right");
+                return generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Corsário (Ancião)", "right");
             case "member":
-                return generateBadge(["fa-solid", "fa-egg"], "#ffffff", "btn", "Baby Dragon (Member)", "right");
+                return generateBadge(["fa-solid", "fa-fish"], "#ffffff", "btn", "Marinheiro (Membro)", "right");
             case "standing-good":
-                return generateBadge(["fa-solid", "fa-circle-check"], "", "btn-outline-success", "Good Standing!", "right");
+                return generateBadge(["fa-solid", "fa-circle-check"], "", "btn-outline-success", "Boa Situação!", "right");
             case "standing-warning":
-                return generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", "Not on track to hit medal quota.", "right");
-            case "tanding-violation":
-                return generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", "Cannot meet medal quota.", "right");
+                return generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", "Não está no ritmo para atingir a quota de medalhas.", "right");
+            case "standing-violation":
+                return generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", "Não pode atingir a quota de medalhas.", "right");
             case "history-decks-12":
-                return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-outline-primary", "Averages over 12 Decks per week!");
+                return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-outline-primary", "Média de mais de 12 Decks por semana!");
             case "history-decks-16":
-                return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-primary", "Averages 16 Decks per week!");
+                return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-primary", "Média de 16 Decks por semana!");
             case "history-medals-2200":
-                return generateBadge(["fa-solid", "fa-khanda"], "#ff0000", "btn", "Averages over 2200 Medals per Week!");
+                return generateBadge(["fa-solid", "fa-khanda"], "#ff0000", "btn", "Média de mais de 2200 Medalhas por semana!");
             case "history-medals-2500":
-                return generateBadge(["fa-solid", "fa-khanda"], "", "btn-outline-danger", "Averages over 2500 Medals per week!");
+                return generateBadge(["fa-solid", "fa-khanda"], "", "btn-outline-danger", "Média de mais de 2500 Medalhas por semana!");
             case "history-medals-3000":
-                return generateBadge(["fa-solid", "fa-khanda"], "", "btn-danger", "Averages over 3000 Medals per week!");
+                return generateBadge(["fa-solid", "fa-khanda"], "", "btn-danger", "Média de mais de 3000 Medalhas por semana!");
             case "ninek":
-                return generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies!");
+                return generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Troféus!");
             case "cr-vet":
-                return generateBadge(["fa-solid", "fa-clock"], "#00cff3", "btn", "Level 55+");
+                return generateBadge(["fa-solid", "fa-clock"], "#00cff3", "btn", "Nível 55+");
             case "medals-threek":
-                return generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "3000+ Weekly Medals!");
+                return generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "3000+ Medalhas Semanais!");
             case "medals-twohalfk":
-                return generateBadge(["fa-solid", "fa-dragon"], "", "btn-outline-danger", "2500+ Weekly Medals!");
+                return generateBadge(["fa-solid", "fa-dragon"], "", "btn-outline-danger", "2500+ Medalhas Semanais!");
             case "medals-twok":
-                return generateBadge(["fa-solid", "fa-dragon"], "#ff003e", "btn", "2000+ Weekly Medals!");
+                return generateBadge(["fa-solid", "fa-dragon"], "#ff003e", "btn", "2000+ Medalhas Semanais!");
             case "donations-onek":
-                return generateBadge(["fa-solid", "fa-gift"], "", "btn-success", "1000+ Weekly Donations!");
+                return generateBadge(["fa-solid", "fa-gift"], "", "btn-success", "1000+ Doações Semanais!");
             case "donations-sevenhalf":
-                return generateBadge(["fa-solid", "fa-gift"], "", "btn-outline-success", "750+ Weekly Donations!");
+                return generateBadge(["fa-solid", "fa-gift"], "", "btn-outline-success", "750+ Doações Semanais!");
             case "donations-five":
-                return generateBadge(["fa-solid", "fa-gift"], "#00a00d", "btn", "500+ Weekly Donations!");
+                return generateBadge(["fa-solid", "fa-gift"], "#00a00d", "btn", "500+ Doações Semanais!");
             case "decks-used-all":
-                return generateBadge(["fa-solid", "fa-copy"], "#0070ff", "btn", "All decks used today! (Includes training days)");
+                return generateBadge(["fa-solid", "fa-copy"], "#0070ff", "btn", "Todos os decks usados hoje! (Inclui dias de treinamento)");
             case "top-medalist":
-                return generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Week Medalist: " + data["partFactors"]["meTop"] + " medals!");
+                return generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 Medalhista da Semana de Guerra: " + data["partFactors"]["meTop"] + " medalhas!");
             case "top-donor":
-                return generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Weekly Donor: " + data["partFactors"]["doTop"] + " donations!");
+                return generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Doador Semanal: " + data["partFactors"]["doTop"] + " doações!");
+
             default:
                 break;
         }
     }
 
+    // Função que configura a informação do cartão superior
     function setTopCardInfo(info, role, status, name, tag, trophies) {
         var statusDiv = document.createElement("div");
         helper.appendClassList(statusDiv, ["card-header-med"]);
@@ -319,7 +336,7 @@ async function populateMemberList(data, history) {
         var trophiesDiv = document.createElement("div");
         helper.appendClassList(trophiesDiv, ["card-header-sm"]);
         trophiesDiv.appendChild(helper.generateIcon(["fa-solid", "fa-trophy"], "#ffe75c"));
-        trophiesDiv.innerHTML += trophies;
+        trophiesDiv.innerHTML += ` ${trophies}`;
 
         info.appendChild(statusDiv);
         info.appendChild(nameDiv);
@@ -484,24 +501,49 @@ async function populateMemberList(data, history) {
         }
     }
     
-    var memberCanvas = document.getElementById("member-canvas");
-    memberCanvas.innerHTML = "";
 
-    //Get current ordering
+    // Verifique se `orderingSelector` e `data["ordering"]` são válidos
+    if (!data["ordering"] || !data["ordering"][orderingSelector]) {
+        console.error(`Ordenação não encontrada para: ${orderingSelector}`);
+        return;
+    }
+
+    // Função que renderiza os membros na interface
     const order = data["ordering"][orderingSelector];
     const members = data["memberList"];
+
+    // Verifique se há membros e uma lista de ordenação válida
+    if (!order || order.length === 0) {
+        console.error('Nenhuma ordenação válida encontrada.');
+        return;
+    }
+    if (!members || Object.keys(members).length === 0) {
+        console.error('Nenhuma lista de membros válida encontrada.');
+        return;
+    }
+
+    console.log('Membros e ordenação carregados corretamente.');
 
     var cardInRow = 0;
     var row = null;
     for (const k of order) {
         const v = members[k];
+
+        // Log para verificar se o membro está sendo encontrado
+        console.log(`Processando membro com chave: ${k}`, v);
+
+        if (!v) {
+            console.warn(`Membro não encontrado para a chave: ${k}`);
+            continue;
+        }
+
         if (cardInRow === 0) {
-            cardInRow = 4; //how many cards per row
+            cardInRow = 4; // Número de cartões por linha
             row = document.createElement("div");
             helper.appendClassList(row, ["member-row"]);
             memberCanvas.appendChild(row);
         }
-        cardInRow-=1;
+        cardInRow -= 1;
 
         var card = document.createElement("div");
         helper.appendClassList(card, ["member-card", "card", "text-bg-dark"]);
@@ -510,36 +552,57 @@ async function populateMemberList(data, history) {
         var cardMid2 = document.createElement("div");
         var cardBot = document.createElement("div");
 
+        // Configurar informações do cartão superior (nome, cargo, troféus, etc.)
+        console.log(`Configurar topo do cartão para: ${v["name"]}`);
         helper.appendClassList(cardTop, ["card-header",]);
         setTopCardInfo(cardTop, v["badges"][0], v["badges"][1], v["name"], v["tag"], v["trophies"]);
 
+        // Configurar a parte do meio com as informações de decks e medalhas
+        console.log(`Configurar corpo do cartão para: ${v["name"]}`);
         helper.appendClassList(cardMid1, ["card-body"]);
         setMidCard1Info(cardMid1, v, data["partFactors"], data["weekWarDay"]);
 
+        // Configurar a segunda parte do meio (gráficos)
+        console.log(`Configurar gráficos do cartão para: ${v["name"]}`);
         helper.appendClassList(cardMid2, ["card-body", "graphs-wrapper"]);
         if (historyData[k]) {
             setMidCard2Info(cardMid2, historyData[k]);
+        } else {
+            setMidCard2Info(cardMid2, { "deckUseHistory": [0], "fameHistory": [0] });
         }
-        else {
-            setMidCard2Info(cardMid2, {"deckUseHistory":[0],"fameHistory":[0]});
-        }
 
-        helper.appendClassList(cardBot, ["card-footer"]);
-        var historyBadges = [];
-        try {
-            historyBadges = history[v["tag"]]["historyBadges"];
-        } catch (e) {};
-        setBotCardInfo(cardBot, historyBadges.concat(v["badges"].splice(2)));
+         // Configurar o rodapé com badges históricas
+         helper.appendClassList(cardBot, ["card-footer"]);
+         var historyBadges = [];
+         try {
+             historyBadges = history[v["tag"]]["historyBadges"];
+         } catch (e) {
+             // Caso não haja badges históricas, prosseguir sem erros
+             console.warn(`Erro ao carregar badges históricas para o membro ${v["name"]}:`, e);
+         }
+ 
 
-        card.appendChild(cardTop);
-        card.appendChild(cardMid1);
-        card.appendChild(cardMid2);
-        card.appendChild(cardBot);
+         console.log(`Configurar badges para: ${v["name"]}`);
+         // Concatenar badges históricas com as badges adicionais do membro
+         setBotCardInfo(cardBot, historyBadges.concat(v["badges"].slice(2)));
+ 
+         // Adicionar as diferentes partes do cartão ao container do cartão principal
+         card.appendChild(cardTop);
+         card.appendChild(cardMid1);
+         card.appendChild(cardMid2);
+         card.appendChild(cardBot);
+ 
+         // Adicionar o cartão à linha atual
+         row.appendChild(card);
+     }
+ 
+     // Adicionar a última linha ao canvas de membros (se houver)
+     if (row) {
+         memberCanvas.appendChild(row);
+     }
 
-        row.appendChild(card);
-    }
-    memberCanvas.appendChild(row);
-}
+     console.log('Renderização dos membros concluída.');
+ }
 
 var data = null;
 var historyData = null;
@@ -588,6 +651,6 @@ async function refreshData() {
 
     //Update activity graph
     await updateActivityMap(activityData);
-} 
+}
 
 refreshData();

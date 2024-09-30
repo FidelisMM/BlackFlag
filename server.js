@@ -313,29 +313,36 @@ async function parseCurrentData() {
           break;
     }
     //Determine if member is on track to hit quota or cannot hit quota
-    if (value["warData"]["fame"] < (wwDay === 0 ? 0 : (parsedData["medalQuota"] / 4) * wwDay)) {
-      const toQuota = parsedData["medalQuota"] - value["warData"]["fame"];
-      const dut = value["warData"]["decksUsedToday"];
-      var mePotential = 900 * (4 - wwDay);
-      if (dut === 0) {
-          mePotential += 900;
-      }
-      else if (dut === 1) {
-          mePotential += 700;
+    if(warData["periodType"] == 'training'){
+      badges.push("standing-good")
+    } else {
+      if (value["warData"]["fame"] < (wwDay === 0 ? 0 : (parsedData["medalQuota"] / 4) * wwDay)) {
+        const toQuota = parsedData["medalQuota"] - value["warData"]["fame"];
+        const dut = value["warData"]["decksUsedToday"];
+        var mePotential = 900 * (4 - wwDay);
+        if (dut === 0) {
+            mePotential += 900;
+        }
+        else if (dut === 1) {
+            mePotential += 700;
+        }
+        else {
+            mePotential += 200 * (4 - dut);
+        }
+        if (toQuota - mePotential > 0) {
+            badges.push("standing-violation");
+        }
+        else {
+          //badges.push("standing-warning");
+          badges.push("standing-good");
+        }
       }
       else {
-          mePotential += 200 * (4 - dut);
-      }
-      if (toQuota - mePotential > 0) {
-          badges.push("standing-violation");
-      }
-      else {
+        //badges.push("standing-good");
         badges.push("standing-warning");
       }
     }
-    else {
-      badges.push("standing-good");
-    }
+
     //Trophy recognition
     if (value["trophies"] === 9000) {
       badges.push("ninek");
