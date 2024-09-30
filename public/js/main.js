@@ -316,7 +316,7 @@ async function populateMemberList(data, history) {
     }
 
     // Função que configura a informação do cartão superior
-    function setTopCardInfo(info, role, status, name, tag, trophies) {
+    function setTopCardInfo(info, role, status, name, tag, lastSeen, trophies) {
         var statusDiv = document.createElement("div");
         helper.appendClassList(statusDiv, ["card-header-med"]);
         statusDiv.appendChild(getBadge(role));
@@ -332,6 +332,26 @@ async function populateMemberList(data, history) {
         tagDiv.setAttribute("target", "_blank");
         tagDiv.innerText = tag;
         nameDiv.appendChild(tagDiv);
+
+        function convertISOToSaoPaulo(isoDate) {
+            let formattedISO = isoDate.replace(
+                /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})\.(\d{3})Z$/,
+                '$1-$2-$3T$4:$5:$6.$7Z'
+            );
+
+            // Converte a string ISO 8601 para um objeto Date
+            let date = new Date(formattedISO);
+        
+            // Converte para o fuso horário de São Paulo e retorna a data no formato desejado
+            return date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+        }
+
+        var localedateformat = convertISOToSaoPaulo(lastSeen);
+
+        var lastSeenDiv = document.createElement("a");
+        helper.appendClassList(lastSeenDiv, ["member-lastseen"]);
+        lastSeenDiv.innerText = `\nÚltimo acesso: ${localedateformat}`;
+        nameDiv.appendChild(lastSeenDiv)
 
         var trophiesDiv = document.createElement("div");
         helper.appendClassList(trophiesDiv, ["card-header-sm"]);
@@ -500,42 +520,15 @@ async function populateMemberList(data, history) {
             info.appendChild(getBadge(badge));
         }
     }
-    
-
-    // Verifique se `orderingSelector` e `data["ordering"]` são válidos
-    if (!data["ordering"] || !data["ordering"][orderingSelector]) {
-        console.error(`Ordenação não encontrada para: ${orderingSelector}`);
-        return;
-    }
 
     // Função que renderiza os membros na interface
     const order = data["ordering"][orderingSelector];
     const members = data["memberList"];
 
-    // Verifique se há membros e uma lista de ordenação válida
-    if (!order || order.length === 0) {
-        console.error('Nenhuma ordenação válida encontrada.');
-        return;
-    }
-    if (!members || Object.keys(members).length === 0) {
-        console.error('Nenhuma lista de membros válida encontrada.');
-        return;
-    }
-
-    console.log('Membros e ordenação carregados corretamente.');
-
     var cardInRow = 0;
     var row = null;
     for (const k of order) {
         const v = members[k];
-
-        // Log para verificar se o membro está sendo encontrado
-        console.log(`Processando membro com chave: ${k}`, v);
-
-        if (!v) {
-            console.warn(`Membro não encontrado para a chave: ${k}`);
-            continue;
-        }
 
         if (cardInRow === 0) {
             cardInRow = 4; // Número de cartões por linha
@@ -553,17 +546,14 @@ async function populateMemberList(data, history) {
         var cardBot = document.createElement("div");
 
         // Configurar informações do cartão superior (nome, cargo, troféus, etc.)
-        console.log(`Configurar topo do cartão para: ${v["name"]}`);
         helper.appendClassList(cardTop, ["card-header",]);
-        setTopCardInfo(cardTop, v["badges"][0], v["badges"][1], v["name"], v["tag"], v["trophies"]);
+        setTopCardInfo(cardTop, v["badges"][0], v["badges"][1], v["name"], v["tag"], v["lastSeen"], v["trophies"]);
 
         // Configurar a parte do meio com as informações de decks e medalhas
-        console.log(`Configurar corpo do cartão para: ${v["name"]}`);
         helper.appendClassList(cardMid1, ["card-body"]);
         setMidCard1Info(cardMid1, v, data["partFactors"], data["weekWarDay"]);
 
         // Configurar a segunda parte do meio (gráficos)
-        console.log(`Configurar gráficos do cartão para: ${v["name"]}`);
         helper.appendClassList(cardMid2, ["card-body", "graphs-wrapper"]);
         if (historyData[k]) {
             setMidCard2Info(cardMid2, historyData[k]);
@@ -581,8 +571,6 @@ async function populateMemberList(data, history) {
              console.warn(`Erro ao carregar badges históricas para o membro ${v["name"]}:`, e);
          }
  
-
-         console.log(`Configurar badges para: ${v["name"]}`);
          // Concatenar badges históricas com as badges adicionais do membro
          setBotCardInfo(cardBot, historyBadges.concat(v["badges"].slice(2)));
  

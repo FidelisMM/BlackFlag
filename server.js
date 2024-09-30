@@ -9,11 +9,11 @@ const app = new express();
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + "/node_modules/bootstrap/dist/"));
 app.get('/', (req, res, next) => {
-    res.sendFile(path.resolve(__dirname, 'public/index.html'));
+  res.sendFile(path.resolve(__dirname, 'public/index.html'));
 });
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0', () => {
-    process.stdout.write(`Listening on port ${port}!\n`)
+  process.stdout.write(`Listening on port ${port}!\n`)
 });
 
 async function spinUp() {
@@ -39,22 +39,22 @@ var weekJob = new CronJob('0 6 * * 1', weekFunc, null, true, "America/Sao_Paulo"
 
 //API query funciton
 async function queryAPI(requestURL) {
-  const response = await fetch(requestURL, {headers: {'Authorization': `Bearer ${process.env.API_KEY}`}});
+  const response = await fetch(requestURL, { headers: { 'Authorization': `Bearer ${process.env.API_KEY}` } });
   switch (response.status) {
-      case 200:
-          break;
-      case 400:
-        throw new Error("API Request Error: Client provided incorrect parameters for the request.");
-      case 403:
-        throw new Error("API Request Error: Access denied, either because of missing/incorrect credentials or used API token does not grant access to the requested resource.");
-      case 404:
-        throw new Error("API Request Error: Resource was not found.");
-      case 429:
-        throw new Error("API Request Error: Request was throttled, because amount of requests was above the threshold defined for the used API token.");
-      case 500:
-        throw new Error("API Request Error: Unknown error happened when handling the request.");
-      case 503:
-        throw new Error("API Request Error: Service is temprorarily unavailable because of maintenance.");
+    case 200:
+      break;
+    case 400:
+      throw new Error("API Request Error: Client provided incorrect parameters for the request.");
+    case 403:
+      throw new Error("API Request Error: Access denied, either because of missing/incorrect credentials or used API token does not grant access to the requested resource.");
+    case 404:
+      throw new Error("API Request Error: Resource was not found.");
+    case 429:
+      throw new Error("API Request Error: Request was throttled, because amount of requests was above the threshold defined for the used API token.");
+    case 500:
+      throw new Error("API Request Error: Unknown error happened when handling the request.");
+    case 503:
+      throw new Error("API Request Error: Service is temprorarily unavailable because of maintenance.");
   }
   var data = await response.json();
   return data;
@@ -65,7 +65,7 @@ async function update_clan_data() {
   var data = null;
   try {
     data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}`);
-  } catch (e) {throw new Error(e);};
+  } catch (e) { throw new Error(e); };
   return data;
 }
 
@@ -73,7 +73,7 @@ async function update_war_data() {
   var data = null;
   try {
     data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}/currentriverrace`);
-  } catch (e) {throw new Error(e);};
+  } catch (e) { throw new Error(e); };
   return data;
 }
 
@@ -81,7 +81,7 @@ async function update_war_history() {
   var data = null;
   try {
     data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}/riverracelog?limit=10`);
-  } catch (e) {throw new Error(e);};
+  } catch (e) { throw new Error(e); };
   return data;
 }
 
@@ -95,12 +95,12 @@ async function updateActivityTracking(parsedData) {
 
   //update last seen for current members
   var updatedLastSeen = {};
-  for(const [k, v] of Object.entries(parsedData["memberList"])) {
+  for (const [k, v] of Object.entries(parsedData["memberList"])) {
     updatedLastSeen[k] = v["lastSeen"];
   }
-  
+
   //update day of week activity
-  for(const [k, v] of Object.entries(parsedData["memberList"])) {
+  for (const [k, v] of Object.entries(parsedData["memberList"])) {
     const seen = v["lastSeen"];
     if (k in activityData["lastSeen"]) {
       if (activityData["lastSeen"][k] != seen) {
@@ -117,62 +117,62 @@ async function updateActivityTracking(parsedData) {
 async function parseHistoricalData() {
   process.stdout.write("Updating 10 week historical data...\n");
   var historyData = null;
-    //get data
-    try {
-      historyData = await update_war_history();
-    } catch (e) {
-      process.stdout.write(e + "\n");
-      return;
-    }
-    //only care about our clan lol
-    var parsedHistoryByTag = {};
-    for (const week of historyData["items"]) {
-      for (const elm of week["standings"]) {
-        const clan = elm["clan"];
-        if (clan["tag"] === `#${process.env.CLAN_TAG}`) {
-          for (const member of clan["participants"]) {
-            const tag = member["tag"];
-            if (!(tag in parsedHistoryByTag)) {
-              parsedHistoryByTag[tag] = {
-                "deckUseHistory": [member["decksUsed"]],
-                "fameHistory": [member["fame"]],
-                "historyBadges": []
-              };
-            }
-            else {
-              parsedHistoryByTag[tag]["deckUseHistory"].push(member["decksUsed"]);
-              parsedHistoryByTag[tag]["fameHistory"].push(member["fame"]);
-            }
+  //get data
+  try {
+    historyData = await update_war_history();
+  } catch (e) {
+    process.stdout.write(e + "\n");
+    return;
+  }
+  //only care about our clan lol
+  var parsedHistoryByTag = {};
+  for (const week of historyData["items"]) {
+    for (const elm of week["standings"]) {
+      const clan = elm["clan"];
+      if (clan["tag"] === `#${process.env.CLAN_TAG}`) {
+        for (const member of clan["participants"]) {
+          const tag = member["tag"];
+          if (!(tag in parsedHistoryByTag)) {
+            parsedHistoryByTag[tag] = {
+              "deckUseHistory": [member["decksUsed"]],
+              "fameHistory": [member["fame"]],
+              "historyBadges": []
+            };
+          }
+          else {
+            parsedHistoryByTag[tag]["deckUseHistory"].push(member["decksUsed"]);
+            parsedHistoryByTag[tag]["fameHistory"].push(member["fame"]);
           }
         }
       }
     }
-    //create tags
-    for (const [key, value] of Object.entries(parsedHistoryByTag)) {
-      const deckSum = value["deckUseHistory"].reduce((partialSum, a) => partialSum + a, 0);
-      const medalSum = value["fameHistory"].reduce((partialSum, a) => partialSum + a, 0);
-      const historyLength = value["deckUseHistory"].length;
+  }
+  //create tags
+  for (const [key, value] of Object.entries(parsedHistoryByTag)) {
+    const deckSum = value["deckUseHistory"].reduce((partialSum, a) => partialSum + a, 0);
+    const medalSum = value["fameHistory"].reduce((partialSum, a) => partialSum + a, 0);
+    const historyLength = value["deckUseHistory"].length;
 
-      const deckAvg = deckSum / historyLength;
-      if (deckAvg === 16) {
-        parsedHistoryByTag[key]["historyBadges"].push("history-decks-16");
-      } else if (deckAvg > 12) {
-        parsedHistoryByTag[key]["historyBadges"].push("history-decks-12");
-      }
-
-      const medalAvg = medalSum / historyLength;
-      if (medalAvg >= 3000) {
-        parsedHistoryByTag[key]["historyBadges"].push("history-medals-3000");
-      } else if (medalAvg >= 2500) {
-        parsedHistoryByTag[key]["historyBadges"].push("history-medals-2500");
-      }
-      else if (medalAvg >= 2200) {
-        parsedHistoryByTag[key]["historyBadges"].push("history-medals-2200");
-      }
+    const deckAvg = deckSum / historyLength;
+    if (deckAvg === 16) {
+      parsedHistoryByTag[key]["historyBadges"].push("history-decks-16");
+    } else if (deckAvg > 12) {
+      parsedHistoryByTag[key]["historyBadges"].push("history-decks-12");
     }
-    fs.writeFileSync('public/data/parsed_history.json', JSON.stringify(parsedHistoryByTag));
-    process.stdout.write("Historical Data updated!\n");
-    return parsedHistoryByTag;
+
+    const medalAvg = medalSum / historyLength;
+    if (medalAvg >= 3000) {
+      parsedHistoryByTag[key]["historyBadges"].push("history-medals-3000");
+    } else if (medalAvg >= 2500) {
+      parsedHistoryByTag[key]["historyBadges"].push("history-medals-2500");
+    }
+    else if (medalAvg >= 2200) {
+      parsedHistoryByTag[key]["historyBadges"].push("history-medals-2200");
+    }
+  }
+  fs.writeFileSync('public/data/parsed_history.json', JSON.stringify(parsedHistoryByTag));
+  process.stdout.write("Historical Data updated!\n");
+  return parsedHistoryByTag;
 }
 
 async function parseCurrentData() {
@@ -202,13 +202,13 @@ async function parseCurrentData() {
   //remap member list from clan data to tag:data pair
   var clanMembers = {};
   for (var member of clanData["memberList"]) {
-    clanMembers[member["tag"]]= member;
+    clanMembers[member["tag"]] = member;
   }
   //wardata contains a bunch of players that are not current members. only add current member info.
   for (var participant of warData["clan"]["participants"]) {
     try {
       clanMembers[participant["tag"]]["warData"] = participant;
-    } catch(e) {continue};
+    } catch (e) { continue };
   }
 
   //find current medal requirement _> format in desc: (space)(number of n digits)(+)
@@ -231,14 +231,14 @@ async function parseCurrentData() {
   var topMedals = [];
 
   //sums of all
-  var meSum= 0;
+  var meSum = 0;
   var doSum = 0;
   var deSum = 0;
-  
+
   for (const [key, value] of Object.entries(clanMembers)) {
     //check if top medalist
     var numMedals = 0;
-    try { 
+    try {
       numMedals = value["warData"]["fame"];
     } catch (e) {
       console.log(key + " must have just joined. no war data.");
@@ -247,7 +247,7 @@ async function parseCurrentData() {
         "decksUsed": 0
       };
     }
-      if (numMedals > ctopMedals) {
+    if (numMedals > ctopMedals) {
       topMedals = [key];
       ctopMedals = numMedals;
     } else if (numMedals === ctopMedals) {
@@ -276,44 +276,44 @@ async function parseCurrentData() {
       "decks": decksUsed,
       "wMedals": meWeight * numMedals,
       "wDonos": doWeight * numDonos,
-      "wDecks": wwDay === 0  ? 0 : deWeight * decksUsed / (4 * wwDay),
+      "wDecks": wwDay === 0 ? 0 : deWeight * decksUsed / (4 * wwDay),
     };
   }
 
-    //store fun information
-    parsedData["partFactors"] = {
-      "doWeight": doWeight,
-      "meWeight": meWeight,
-      "deWeight": deWeight,
-      "doTop": ctopDonations,
-      "topDonors": topDonations,
-      "meTop": ctopMedals,
-      "topMedals": topMedals,
-      "meAvg": meSum / numMembers,
-      "doAvg": doSum / numMembers,
-      "deAvg": wwDay === 0 ? 0 : deSum / numMembers
-    }
+  //store fun information
+  parsedData["partFactors"] = {
+    "doWeight": doWeight,
+    "meWeight": meWeight,
+    "deWeight": deWeight,
+    "doTop": ctopDonations,
+    "topDonors": topDonations,
+    "meTop": ctopMedals,
+    "topMedals": topMedals,
+    "meAvg": meSum / numMembers,
+    "doAvg": doSum / numMembers,
+    "deAvg": wwDay === 0 ? 0 : deSum / numMembers
+  }
 
   //Determine each member's badges
   for (const [key, value] of Object.entries(clanMembers)) {
     var badges = [];
     //add role badge
-    switch(value["role"]) {
+    switch (value["role"]) {
       case "leader":
-          badges.push("leader");
-          break;
+        badges.push("leader");
+        break;
       case "coLeader":
-          badges.push("coleader");
-          break;
+        badges.push("coleader");
+        break;
       case "elder":
-          badges.push("elder");
-          break
+        badges.push("elder");
+        break
       case "member":
-          badges.push("member");
-          break;
+        badges.push("member");
+        break;
     }
     //Determine if member is on track to hit quota or cannot hit quota
-    if(warData["periodType"] == 'training'){
+    if (warData["periodType"] == 'training') {
       badges.push("standing-good")
     } else {
       if (value["warData"]["fame"] < (wwDay === 0 ? 0 : (parsedData["medalQuota"] / 4) * wwDay)) {
@@ -321,16 +321,16 @@ async function parseCurrentData() {
         const dut = value["warData"]["decksUsedToday"];
         var mePotential = 900 * (4 - wwDay);
         if (dut === 0) {
-            mePotential += 900;
+          mePotential += 900;
         }
         else if (dut === 1) {
-            mePotential += 700;
+          mePotential += 700;
         }
         else {
-            mePotential += 200 * (4 - dut);
+          mePotential += 200 * (4 - dut);
         }
         if (toQuota - mePotential > 0) {
-            badges.push("standing-violation");
+          badges.push("standing-violation");
         }
         else {
           //badges.push("standing-warning");
@@ -348,7 +348,7 @@ async function parseCurrentData() {
       badges.push("ninek");
     }
     //CR vet by xp level
-    if(value["expLevel"] >= 55) {
+    if (value["expLevel"] >= 55) {
       badges.push("cr-vet");
     }
     //Weekly War Rec
@@ -360,15 +360,15 @@ async function parseCurrentData() {
       badges.push("medals-twok");
     }
     //donations
-    if(value["donations"] > 1000) {
+    if (value["donations"] > 1000) {
       badges.push("donations-onek");
-    } else if(value["donations"] > 750) {
+    } else if (value["donations"] > 750) {
       badges.push("donations-sevenhalf");
-    } else if(value["donations"] > 500) {
+    } else if (value["donations"] > 500) {
       badges.push("donations-five");
     }
     //all daily war decks used badge
-    if(value["warData"]["decksUsedToday"] == 4) {
+    if (value["warData"]["decksUsedToday"] == 4) {
       badges.push("decks-used-all");
     }
     //top medalist
@@ -401,12 +401,40 @@ async function parseCurrentData() {
     var b = clanMembers[m2]["name"].toLowerCase();
     return a != b ? (a < b ? -1 : 1) : 0;
   });
+
+  // Função auxiliar para converter o formato `lastSeen` em `Date`
+  function parseLastSeen(lastSeen) {
+    // Caso o lastSeen já seja uma string válida do tipo ISO
+    if (!lastSeen) return new Date(0); // Se o valor for nulo ou indefinido, retorna uma data muito antiga
+
+    // Verifica se o lastSeen está no formato ISO (20240929T090155.000Z)
+    if (/^\d{8}T\d{6}\.\d{3}Z$/.test(lastSeen)) {
+      // Reformata o lastSeen para um formato ISO 8601 aceito por JavaScript
+      let formattedDate = lastSeen.replace(
+        /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})\.(\d{3})Z$/,
+        '$1-$2-$3T$4:$5:$6.$7Z'
+      );
+      return new Date(formattedDate);
+    }
+
+    // Caso já seja um formato reconhecido pelo JavaScript, como 'YYYY-MM-DDTHH:MM:SSZ'
+    return new Date(lastSeen);
+  }
+
+
+  var lsorder = Object.keys(clanMembers).sort((m1, m2) => {
+    var a = parseLastSeen(clanMembers[m1]["lastSeen"]);
+    var b = parseLastSeen(clanMembers[m2]["lastSeen"]);
+    return a - b; // Crescente (antigo primeiro)
+  });
+  /*
   var tgorder = Object.keys(clanMembers).sort((m1, m2) => {
     var a = clanMembers[m1]["tag"];
     var b = clanMembers[m2]["tag"];
     return a != b ? (a < b ? -1 : 1) : 0;
   });
-  
+  */
+
   parsedData["ordering"] = {
     "Participação Decrescente": porder,
     "Participação Crescente": porder.slice().reverse(),
@@ -414,8 +442,10 @@ async function parseCurrentData() {
     "Troféus Crescente": torder.slice().reverse(),
     "Nome A-Z": norder,
     "Nome Z-A": norder.slice().reverse(),
-    "Tag A-Z": tgorder,
-    "Tag Z-A": tgorder.slice().reverse(),
+    //"Tag A-Z": tgorder,
+    //"Tag Z-A": tgorder.slice().reverse(),
+    "Último Acesso Decrescente": lsorder.slice().reverse(),
+    "Último Acesso Crescente": lsorder
   };
 
   //write to file
